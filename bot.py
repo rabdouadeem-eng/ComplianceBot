@@ -1,4 +1,5 @@
 import os
+import asyncio
 import logging
 import requests
 from openai import OpenAI
@@ -37,11 +38,20 @@ async def handle_message(update, context):
         await update.message.reply_text(f"⚠️ Error: {str(e)}")
 
 def main():
+    # هنا الحل: ننشئ event loop جديد لكل thread
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     logger.info("✅ ComplianceBot is polling...")
-    app.run_polling()
+    
+    # تشغيل polling داخل الـ loop
+    try:
+        loop.run_until_complete(app.run_polling())
+    finally:
+        loop.close()
 
 if __name__ == "__main__":
     main()
