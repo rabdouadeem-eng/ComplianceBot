@@ -18,6 +18,9 @@ if not OPENROUTER_KEY:
 
 client = OpenAI(api_key=OPENROUTER_KEY, base_url="https://openrouter.ai/api/v1")
 
+# النموذج الجديد المجاني والموصى به
+MODEL = "amazon/nova-lite-v1:free"
+
 async def start(update, context):
     await update.message.reply_text("👋 Hello! I'm ComplianceBot.\nSend me any business compliance question.")
 
@@ -26,7 +29,7 @@ async def handle_message(update, context):
     await update.message.reply_text("⏳ Thinking...")
     try:
         response = client.chat.completions.create(
-            model="mistralai/mistral-7b-instruct:free",
+            model=MODEL,
             messages=[{"role": "user", "content": user_text}],
             max_tokens=300,
             temperature=0.7
@@ -38,7 +41,7 @@ async def handle_message(update, context):
         await update.message.reply_text(f"⚠️ Error: {str(e)}")
 
 def main():
-    # هنا الحل: ننشئ event loop جديد لكل thread
+    # حل مشكلة event loop في Python 3.14+
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     
@@ -47,7 +50,6 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     logger.info("✅ ComplianceBot is polling...")
     
-    # تشغيل polling داخل الـ loop
     try:
         loop.run_until_complete(app.run_polling())
     finally:
