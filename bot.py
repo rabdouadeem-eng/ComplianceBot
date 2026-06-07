@@ -16,10 +16,15 @@ if not BOT_TOKEN:
 if not OPENROUTER_KEY:
     logger.error("❌ OPENROUTER_KEY missing")
 
-client = OpenAI(api_key=OPENROUTER_KEY, base_url="https://openrouter.ai/api/v1")
+# حذف أي webhook قديم لتجنب التعارض مع polling
+try:
+    resp = requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/deleteWebhook")
+    logger.info(f"Webhook deleted: {resp.json()}")
+except Exception as e:
+    logger.warning(f"Could not delete webhook: {e}")
 
-# النموذج الجديد المجاني والموصى به
-MODEL = "amazon/nova-lite-v1:free"
+client = OpenAI(api_key=OPENROUTER_KEY, base_url="https://openrouter.ai/api/v1")
+MODEL = "amazon/nova-lite-v1:free"  # نموذج مجاني يعمل حالياً
 
 async def start(update, context):
     await update.message.reply_text("👋 Hello! I'm ComplianceBot.\nSend me any business compliance question.")
@@ -41,7 +46,7 @@ async def handle_message(update, context):
         await update.message.reply_text(f"⚠️ Error: {str(e)}")
 
 def main():
-    # حل مشكلة event loop في Python 3.14+
+    # إنشاء event loop جديد (لـ Python 3.14+)
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     
