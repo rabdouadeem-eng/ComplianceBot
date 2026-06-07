@@ -16,13 +16,12 @@ if not BOT_TOKEN or not OPENROUTER_KEY:
     exit(1)
 
 requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/deleteWebhook?drop_pending_updates=True")
-requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/close")
 
 client = OpenAI(api_key=OPENROUTER_KEY, base_url="https://openrouter.ai/api/v1")
-MODEL = "amazon/nova-lite-v1:free"
+MODEL = "mistralai/mistral-7b-instruct:free"
 
 async def start(update, context):
-    await update.message.reply_text("👋 Hello! I'm ComplianceBot.\nSend me any business compliance question.")
+    await update.message.reply_text("👋 Hello! I'm ComplianceBot.\nAsk me anything about business compliance.")
 
 async def handle_message(update, context):
     await update.message.reply_text("⏳ Thinking...")
