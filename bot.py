@@ -1,5 +1,6 @@
 import os
 import logging
+import asyncio
 import requests
 from openai import OpenAI
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
@@ -14,7 +15,6 @@ if not BOT_TOKEN or not OPENROUTER_KEY:
     logger.error("❌ Missing environment variables")
     exit(1)
 
-# حذف أي ويب هوك وإغلاق أي اتصال قديم
 requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/deleteWebhook?drop_pending_updates=True")
 requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/close")
 
@@ -40,6 +40,7 @@ async def handle_message(update, context):
         await update.message.reply_text(f"⚠️ Error: {str(e)}")
 
 def main():
+    asyncio.set_event_loop(asyncio.new_event_loop())
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
